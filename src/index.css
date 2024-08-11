@@ -1,0 +1,24 @@
+.delivery-wrapper {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.countdown-wrapper {
+    display: flex;
+    gap: 12px;
+}
+
+.estimated-delivery-container .text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.estimated-delivery-container .text-container > span {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+}
