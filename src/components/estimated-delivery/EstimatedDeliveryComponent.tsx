@@ -17,17 +17,14 @@ interface EstimatedDeliveryPropsInterface {
 
 const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
 
-    function getTimeZone(time: Date, timeZone: string, format: string) {
+    function getTimeZone(timeZone: string) {
 
-        const dateFormat = new Intl.DateTimeFormat(format, {
-            timeZone: timeZone,
-            timeZoneName: "short"
-        });
+        const dateFormat = new Date().toLocaleString('en-US', {timeZone: timeZone});
         
-        return dateFormat.format(time);
+        return dateFormat;
     }
 
-    const CurrentDate = new Date(getTimeZone(new Date(), props.timezone, props.dateFormat));
+    const CurrentDate = new Date(getTimeZone(props.timezone));
     const GetHours = CurrentDate.getHours();
     const GetMinutes = CurrentDate.getMinutes();
     const isMinutesLessThan10 = GetMinutes < 10 ? '0' + GetMinutes : GetMinutes;
@@ -42,8 +39,7 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
 
     useEffect(() => {
         findDeliveryDate(NextDay);
-        setLoader(false);
-    }, []);
+    }, [findDeliveryDate]);
 
     function dayOfWeekAsString(dayIndex: number) {
         return ["sunday", "monday","tuesday","wednesday","thursday","friday","saturday"][dayIndex] || '';
@@ -58,6 +54,7 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
         if(props.businessDays[dayOfWeekAsString(nextDay.getDay())] == true) {
             if(checkHolidays(nextDay) !== true) {
                 setEstDate(new Date(nextDay.setDate(nextDay.getDate() + 1)).toDateString());
+                setLoader(false);
                 return;
             } else {
                 findDeliveryDate(new Date(nextDay.setDate(nextDay.getDate() + 1)))
@@ -69,14 +66,22 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
         const HolidayArray = props.holidays.map((item) => {
             return item.replace(/-/g,"/");
         });
-        return HolidayArray.includes(deliveryDate.toLocaleDateString());
+        return HolidayArray.includes(deliveryDate.toLocaleDateString(props.dateFormat));
     }
 
     return (
         <div className="estimated-delivery-container">
             {(!IsPastCutOffPoint && props.businessDays[dayOfWeekAsString(NextDay.getDay())] == true && props.businessDays[dayOfWeekAsString(CurrentDate.getDay())] == true ) &&
                 <div className="delivery-wrapper">
-                    {props.enableCountDownTimer && <CountdownTimer cutOffTime={props.cutOffTime} currentDate={CurrentDate} timerText={props.timerText}/>}
+                    {props.enableCountDownTimer && 
+                        <CountdownTimer 
+                            cutOffTime={props.cutOffTime} 
+                            currentDate={new Date(CurrentDate.toLocaleDateString(props.dateFormat))}
+                            timerText={props.timerText}
+                            dateFormat={props.dateFormat}
+                            timezone={props.timezone}
+                        />
+                    }
                     <div className="text-container">
                         <span>{props.children} <span>{props.nextDayDeliveryAvailableText}</span></span>
                         <p>{props.estimatedDeliveryText} {NextDay.toDateString()} </p>

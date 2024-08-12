@@ -2,6 +2,15 @@
 
 React component for estimated delivery with config and holiday options.
 
+## How it works
+
+- If it's a business day & the time is before the cut off point, for example 11:00, the timer & next day delivery will display.
+- If it's a business day & the time is past the cut off point, it will add 2 days to the current day.
+- If it's a business day & the time is past the cut off point & tomorrow or the following days are not business days it sets the delivery date to the day after the next business day.
+- If it's not a business day & tomorrow or the following days are not business days it set the delivery date to the day after the next next business day.
+
+- The same above applies for holiday days, it will add one day for each holiday and attempt to deliver the day after the next business day.
+
 ## How to use
 
 ### Install
@@ -29,7 +38,7 @@ Import the package into your app:
                 cutOffTime={"12:00"} 
                 holidays={["07/08/2024", "08/08/2024", "09/08/2024", "10/08/2024", "11/08/2024", "12/08/2024" , "13/08/2024", "14/08/2024"]}
                 timezone={"Europe/London"}
-                dateFormat={"en-US"}
+                dateFormat={"en-GB"}
                 enableCountDownTimer={true}
                 nextDayDeliveryAvailableText={"Next day delivery available."}
                 nextDayDeliveryNotAvailableText={"Next day delivery NOT available."}
@@ -63,8 +72,8 @@ Import the package into your app:
     -  timezone={"Europe/London"}
         Set the timezone to diplay to the customer.
 
-    -  dateFormat={"en-US"}
-        currently only en-US works, en-GB caused invalid date.
+    -  dateFormat={"en-GB"}
+        Used when passing in holidays, the format should match the format of your holidays (dd/mm/yy or mm/dd/yyy).
 
     - enableCountDownTimer={true}
         Have the countdown show if next day delivery is available.

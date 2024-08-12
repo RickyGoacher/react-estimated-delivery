@@ -4,6 +4,8 @@ interface CountdownTimerInfterface {
     cutOffTime: string;
     currentDate: Date;
     timerText: {[key: string]: string}
+    dateFormat: string;
+    timezone: string;
 }
 
 const CountdownTimer = (props: CountdownTimerInfterface) => {
@@ -13,14 +15,13 @@ const CountdownTimer = (props: CountdownTimerInfterface) => {
     const Minutes = Number(props.cutOffTime.split(':')[1]);
     const SetDateTimeFromParams: Date = new Date(CurrentDate.getFullYear(), CurrentDate.getMonth(), CurrentDate.getDate(), Hour, Minutes);
     const NextDay: Date = new Date(SetDateTimeFromParams.setDate(CurrentDate.getDate() + 1));
+    const TimeVar = new Date().toLocaleString(props.dateFormat, {timeZone: props.timezone});
 
-    const [getCountdown, setCountdown] = useState(
-        Number(NextDay) - new Date().getTime()
-    );
+    const [getCountdown, setCountdown] = useState(0);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setCountdown(Number(NextDay) - new Date().getTime());
+            setCountdown(Number(NextDay) - new Date(TimeVar).getTime());
         }, 1000);
         
         return () => clearInterval(interval);
