@@ -15,7 +15,7 @@ const CountdownTimer = (props: CountdownTimerInfterface) => {
     const Minutes = Number(props.cutOffTime.split(':')[1]);
     const SetDateTimeFromParams: Date = new Date(CurrentDate.getFullYear(), CurrentDate.getMonth(), CurrentDate.getDate(), Hour, Minutes);
     const NextDay: Date = new Date(SetDateTimeFromParams.setDate(CurrentDate.getDate() + 1));
-    const TimeVar = new Date().toLocaleString(props.dateFormat, {timeZone: props.timezone});
+    const TimeVar = new Date().toLocaleString('en-US', {timeZone: props.timezone});
 
     const [getCountdown, setCountdown] = useState(0);
 

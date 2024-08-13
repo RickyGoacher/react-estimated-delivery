@@ -76,7 +76,7 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
                     {props.enableCountDownTimer && 
                         <CountdownTimer 
                             cutOffTime={props.cutOffTime} 
-                            currentDate={new Date(CurrentDate.toLocaleDateString(props.dateFormat))}
+                            currentDate={new Date(CurrentDate.toLocaleDateString('en-US', {timeZone: props.timezone}))}
                             timerText={props.timerText}
                             dateFormat={props.dateFormat}
                             timezone={props.timezone}
