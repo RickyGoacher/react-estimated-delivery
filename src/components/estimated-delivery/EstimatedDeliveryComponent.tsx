@@ -3,6 +3,7 @@ import CountdownTimer from "./CountdownTimer";
 
 interface EstimatedDeliveryPropsInterface {
     businessDays: {[key: string]: boolean};
+    deliveryDays: {[key: string]: boolean};
     cutOffTime: string;
     holidays: Array<string>;
     timezone: string;
@@ -32,70 +33,93 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
     const Hour = Number(props.cutOffTime.split(':')[0]);
     const Minutes = Number(props.cutOffTime.split(':')[1]);
     const SetDateTimeFromParams: Date = new Date(CurrentDate.getFullYear(), CurrentDate.getMonth(), CurrentDate.getDate(), Hour, Minutes);
-    const NextDay: Date = new Date(SetDateTimeFromParams.setDate(CurrentDate.getDate() + 1));
 
-    const [getEstDate, setEstDate] = useState(NextDay.toDateString());
+    const [getEstDate, setEstDate] = useState(SetDateTimeFromParams.toDateString());
     const [getLoader, setLoader] = useState(true);
+    const [getNextDay, setNextDay] = useState(false);
 
     useEffect(() => {
-        findDeliveryDate(NextDay);
-    }, [findDeliveryDate]);
+        if(getLoader == true) {
+            findDeliveryDate(SetDateTimeFromParams, false);
+        }
+    }, [getLoader, findDeliveryDate]);
 
     function dayOfWeekAsString(dayIndex: number) {
         return ["sunday", "monday","tuesday","wednesday","thursday","friday","saturday"][dayIndex] || '';
     }   
     
-    function findDeliveryDate(nextDay: Date) {
-        
-        if(props.businessDays[dayOfWeekAsString(nextDay.getDay())] == false) {
-            findDeliveryDate(new Date(nextDay.setDate(nextDay.getDate() + 1)));
-        }
+    function findDeliveryDate(checkDay: Date, businessDayPassed: boolean) {
 
-        if(props.businessDays[dayOfWeekAsString(nextDay.getDay())] == true) {
-            if(checkHolidays(nextDay) !== true) {
-                setEstDate(new Date(nextDay.setDate(nextDay.getDate() + 1)).toDateString());
-                setLoader(false);
-                return;
+        let tomorrow = new Date(new Date().setDate(checkDay.getDate() + 1))
+
+        if(checkHolidays(checkDay) !== true) {
+
+            if(CurrentDate.getDate() == checkDay.getDate() && !IsPastCutOffPoint) {
+                if(
+                    props.businessDays[dayOfWeekAsString(CurrentDate.getDay())] == true && 
+                    props.deliveryDays[dayOfWeekAsString(tomorrow.getDay())] == true
+                ) {
+                    setEstDate(tomorrow.toDateString());
+                    setLoader(false);
+                    setNextDay(true);
+                    return;
+                } else {
+                    findDeliveryDate(tomorrow, false)
+                }
             } else {
-                findDeliveryDate(new Date(nextDay.setDate(nextDay.getDate() + 1)))
-            }
+                if(CurrentDate.getDate() == checkDay.getDate()) {
+                    findDeliveryDate(tomorrow, false)
+                } else {
+                    if(businessDayPassed) {
+                        if(props.deliveryDays[dayOfWeekAsString(tomorrow.getDay())] == true) {
+                            setEstDate(tomorrow.toDateString());
+                            setLoader(false);
+                            return;
+                        } else {
+                            findDeliveryDate(tomorrow, true)
+                        }
+                    } else {
+                        if(props.businessDays[dayOfWeekAsString(checkDay.getDay())] == true) {
+                            if(props.deliveryDays[dayOfWeekAsString(tomorrow.getDay())] == true) {
+                                findDeliveryDate(checkDay, true)
+                            } else {
+                                findDeliveryDate(tomorrow, true)
+                            }
+                        } else {
+                            findDeliveryDate(tomorrow, false)
+                        }
+                    }
+                }
+            }            
+        } else {
+            findDeliveryDate(tomorrow, false);
         }
     }
 
     function checkHolidays (deliveryDate:Date) {
-        const HolidayArray = props.holidays.map((item) => {
+        const Holidays = props.holidays.map((item) => {
             return item.replace(/-/g,"/");
         });
-        return HolidayArray.includes(deliveryDate.toLocaleDateString(props.dateFormat));
+        return Holidays.includes(deliveryDate.toLocaleDateString(props.dateFormat));
     }
 
     return (
         <div className="estimated-delivery-container">
-            {(!IsPastCutOffPoint && props.businessDays[dayOfWeekAsString(NextDay.getDay())] == true && props.businessDays[dayOfWeekAsString(CurrentDate.getDay())] == true ) &&
                 <div className="delivery-wrapper">
-                    {props.enableCountDownTimer && 
-                        <CountdownTimer 
-                            cutOffTime={props.cutOffTime} 
-                            currentDate={new Date(CurrentDate.toLocaleDateString('en-US', {timeZone: props.timezone}))}
-                            timerText={props.timerText}
-                            dateFormat={props.dateFormat}
-                            timezone={props.timezone}
+                    {props.enableCountDownTimer && !IsPastCutOffPoint &&
+                    <CountdownTimer 
+                        cutOffTime={props.cutOffTime} 
+                        currentDate={new Date(CurrentDate.toLocaleDateString('en-US', {timeZone: props.timezone}))}
+                        timerText={props.timerText}
+                        dateFormat={props.dateFormat}
+                        timezone={props.timezone}
                         />
-                    }
+                    } 
                     <div className="text-container">
-                        <span>{props.children} <span>{props.nextDayDeliveryAvailableText}</span></span>
-                        <p>{props.estimatedDeliveryText} {NextDay.toDateString()} </p>
-                    </div>
-                </div>
-            }
-            {(IsPastCutOffPoint || props.businessDays[dayOfWeekAsString(CurrentDate.getDay())] == false || props.businessDays[dayOfWeekAsString(NextDay.getDay())] == false) &&
-                <div className="delivery-wrapper">
-                    <div className="text-container">
-                        <span>{props.children} <span>{props.nextDayDeliveryNotAvailableText}</span></span>
+                        <span>{props.children} <span>{getNextDay ? props.nextDayDeliveryAvailableText : props.nextDayDeliveryNotAvailableText }</span></span>
                         <p>{props.estimatedDeliveryText} { !getLoader ? getEstDate : 'loading...'} </p>
                     </div>
                 </div>
-            }
         </div>
     );
 }

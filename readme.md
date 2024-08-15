@@ -1,15 +1,11 @@
 # React Estimated Delivery Component
 
-React component for estimated delivery with config and holiday options.
+React component for estimated delivery with business day, delivery day and holiday options configuration.
 
 ## How it works
 
-- If it's a business day & the time is before the cut off point, for example 11:00, the timer & next day delivery will display.
-- If it's a business day & the time is past the cut off point, it will add 2 days to the current day.
-- If it's a business day & the time is past the cut off point & tomorrow or the following days are not business days it sets the delivery date to the day after the next business day.
-- If it's not a business day & tomorrow or the following days are not business days it set the delivery date to the day after the next next business day.
-
-- The same above applies for holiday days, it will add one day for each holiday and attempt to deliver the day after the next business day.
+- Next day delivery - If it's not past cut off & tomorrow is a delivery day.
+- Determining estimated delivery date - If a business day has passed & the next day is a delivery day.
 
 ## How to use
 
@@ -35,8 +31,17 @@ Import the package into your app:
                     "saturday": false,
                     "sunday": false
                 }}
-                cutOffTime={"12:00"} 
-                holidays={["07/08/2024", "08/08/2024", "09/08/2024", "10/08/2024", "11/08/2024", "12/08/2024" , "13/08/2024", "14/08/2024"]}
+                deliveryDays={{
+                    "monday": true,
+                    "tuesday": true,
+                    "wednesday": true,
+                    "thursday": false,
+                    "friday": true,
+                    "saturday": true,
+                    "sunday": false
+                }}
+                cutOffTime={"13:00"} 
+                holidays={["07/08/2024", "08/08/2024", "09/08/2024", "10/08/2024", "11/08/2024"]}
                 timezone={"Europe/London"}
                 dateFormat={"en-GB"}
                 enableCountDownTimer={true}
@@ -62,6 +67,18 @@ Import the package into your app:
         }}
 
         Set which days the business is open.
+
+    -   deliveryDays={{
+            "monday": true,
+            "tuesday": true,
+            "wednesday": true,
+            "thursday": false,
+            "friday": true,
+            "saturday": true,
+            "sunday": false
+        }}    
+
+        Set which days delivery is available.
 
     -  cutOffTime={"12:00"}
         Cut off time for next day delivery.
