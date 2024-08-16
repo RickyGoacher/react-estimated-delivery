@@ -138,8 +138,8 @@ Import the package into your app:
 
 ### Estimated Delivery with timer (Next Day available)
 
-![Estimated delivery timer example](https://raw.githubusercontent.com/RickyGoacher/react-estimated-delivery/main/assets/images/estimated-delivery-timer.png)
+![Estimated delivery timer example](https://raw.githubusercontent.com/RickyGoacher/react-estimated-delivery/main/assets/images/estimated-delivery-timer-example.png)
 
 ### Estimated Delivery wthout timer (Next day not available)
 
-![Estimated delivery example](https://raw.githubusercontent.com/RickyGoacher/react-estimated-delivery/main/assets/images/estimated-delivery.png)
+![Estimated delivery example](https://raw.githubusercontent.com/RickyGoacher/react-estimated-delivery/main/assets/images/estimated-delivery-example.png)
