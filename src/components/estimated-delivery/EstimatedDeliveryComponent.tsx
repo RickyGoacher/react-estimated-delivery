@@ -14,6 +14,12 @@ interface EstimatedDeliveryPropsInterface {
     nextDayDeliveryNotAvailableText: string;
     estimatedDeliveryText: string;
     timerText: {[key: string]: string}
+    orderWithinText: string;
+    isNextDayAvailable: boolean;
+    deliveryDayIncrement: number;
+    showDateRange: boolean;
+    dateRange: number;
+    loadingText: string;
 }
 
 const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
@@ -34,7 +40,7 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
     const Minutes = Number(props.cutOffTime.split(':')[1]);
     const SetDateTimeFromParams: Date = new Date(CurrentDate.getFullYear(), CurrentDate.getMonth(), CurrentDate.getDate(), Hour, Minutes);
 
-    const [getEstDate, setEstDate] = useState(SetDateTimeFromParams.toDateString());
+    const [getEstDate, setEstDate] = useState(SetDateTimeFromParams);
     const [getLoader, setLoader] = useState(true);
     const [getNextDay, setNextDay] = useState(false);
 
@@ -50,43 +56,45 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
     
     function findDeliveryDate(checkDay: Date, businessDayPassed: boolean) {
 
-        let tomorrow = new Date(new Date().setDate(checkDay.getDate() + 1))
+        const firstIncrement = businessDayPassed ? props.deliveryDayIncrement : 1;
+
+        let tomorrow = new Date(new Date().setDate(checkDay.getDate() + firstIncrement));
 
         if(checkHolidays(checkDay) !== true) {
 
-            if(CurrentDate.getDate() == checkDay.getDate() && !IsPastCutOffPoint) {
+            if(CurrentDate.getDate() == checkDay.getDate() && !IsPastCutOffPoint && props.isNextDayAvailable) {
                 if(
                     props.businessDays[dayOfWeekAsString(CurrentDate.getDay())] == true && 
                     props.deliveryDays[dayOfWeekAsString(tomorrow.getDay())] == true
                 ) {
-                    setEstDate(tomorrow.toDateString());
+                    setEstDate(tomorrow);
                     setLoader(false);
                     setNextDay(true);
                     return;
                 } else {
-                    findDeliveryDate(tomorrow, false)
+                    findDeliveryDate(tomorrow, false);
                 }
             } else {
                 if(CurrentDate.getDate() == checkDay.getDate()) {
-                    findDeliveryDate(tomorrow, false)
+                    findDeliveryDate(tomorrow, false);
                 } else {
                     if(businessDayPassed) {
                         if(props.deliveryDays[dayOfWeekAsString(tomorrow.getDay())] == true) {
-                            setEstDate(tomorrow.toDateString());
+                            setEstDate(tomorrow);
                             setLoader(false);
                             return;
                         } else {
-                            findDeliveryDate(tomorrow, true)
+                            findDeliveryDate(tomorrow, true);
                         }
                     } else {
                         if(props.businessDays[dayOfWeekAsString(checkDay.getDay())] == true) {
                             if(props.deliveryDays[dayOfWeekAsString(tomorrow.getDay())] == true) {
-                                findDeliveryDate(checkDay, true)
+                                findDeliveryDate(checkDay, true);
                             } else {
-                                findDeliveryDate(tomorrow, true)
+                                findDeliveryDate(tomorrow, true);
                             }
                         } else {
-                            findDeliveryDate(tomorrow, false)
+                            findDeliveryDate(tomorrow, false);
                         }
                     }
                 }
@@ -105,21 +113,23 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
 
     return (
         <div className="estimated-delivery-container">
-                <div className="delivery-wrapper">
-                    {props.enableCountDownTimer && !IsPastCutOffPoint &&
-                    <CountdownTimer 
-                        cutOffTime={props.cutOffTime} 
-                        currentDate={new Date(CurrentDate.toLocaleDateString('en-US', {timeZone: props.timezone}))}
-                        timerText={props.timerText}
-                        dateFormat={props.dateFormat}
-                        timezone={props.timezone}
-                        />
-                    } 
+                {!getLoader && <div className="delivery-wrapper">
                     <div className="text-container">
                         <span>{props.children} <span>{getNextDay ? props.nextDayDeliveryAvailableText : props.nextDayDeliveryNotAvailableText }</span></span>
-                        <p>{props.estimatedDeliveryText} { !getLoader ? getEstDate : 'loading...'} </p>
+                        {props.enableCountDownTimer && !IsPastCutOffPoint && props.isNextDayAvailable &&
+                            <CountdownTimer 
+                                cutOffTime={props.cutOffTime} 
+                                currentDate={new Date(CurrentDate.toLocaleDateString('en-US', {timeZone: props.timezone}))}
+                                timerText={props.timerText}
+                                dateFormat={props.dateFormat}
+                                timezone={props.timezone}
+                                orderWithinText={props.orderWithinText}
+                            />
+                        } 
+                        <p>{props.estimatedDeliveryText} <span>{ !getLoader ? `${props.showDateRange && !getNextDay ? getEstDate.toDateString() +  ' - ' +  new Date(new Date().setDate(getEstDate.getDate() + props.dateRange)).toDateString() : getEstDate.toDateString()}` : `${props.loadingText}`}</span></p>
                     </div>
                 </div>
+                }
         </div>
     );
 }

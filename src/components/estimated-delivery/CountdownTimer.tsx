@@ -6,6 +6,7 @@ interface CountdownTimerInfterface {
     timerText: {[key: string]: string}
     dateFormat: string;
     timezone: string;
+    orderWithinText: string;
 }
 
 const CountdownTimer = (props: CountdownTimerInfterface) => {
@@ -29,11 +30,16 @@ const CountdownTimer = (props: CountdownTimerInfterface) => {
         return () => clearInterval(interval);
     }, [NextDay]);
 
+    const TimerHours = Math.floor((getCountdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const TimerMinutes = Math.floor((getCountdown % (1000 * 60 * 60)) / (1000 * 60));
+    const TimerSeconds = Math.floor((getCountdown % (1000 * 60)) / 1000);
+
     return (
         <div className="countdown-wrapper">
-            <p>{props.timerText.hours} { Math.floor((getCountdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) } </p>
-            <p>{props.timerText.minutes} { Math.floor((getCountdown % (1000 * 60 * 60)) / (1000 * 60))}</p>
-            <p>{props.timerText.seconds} { Math.floor((getCountdown % (1000 * 60)) / 1000) }</p>
+           <span>{props.orderWithinText}</span> 
+           {TimerHours > 0 && <p>{ TimerHours }{props.timerText.hours} </p> }
+           {TimerMinutes > 0 && <p>{ TimerMinutes }{props.timerText.minutes} </p> }
+           {TimerSeconds > 0 && <p>{ TimerSeconds }{props.timerText.seconds}</p> }
         </div>
     );
 }

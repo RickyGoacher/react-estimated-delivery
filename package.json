@@ -1,6 +1,6 @@
 {
   "name": "react-estimated-delivery",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "React component for estimated delivery with config and holiday options.",
   "main": "./dist/cjs/index.js",
   "repository": {
