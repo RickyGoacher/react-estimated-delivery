@@ -116,7 +116,7 @@ const EstimatedDeliveryComponent = (props:EstimatedDeliveryPropsInterface) => {
                 {!getLoader && <div className="delivery-wrapper">
                     <div className="text-container">
                         <span>{props.children} <span>{getNextDay ? props.nextDayDeliveryAvailableText : props.nextDayDeliveryNotAvailableText }</span></span>
-                        {props.enableCountDownTimer && !IsPastCutOffPoint && props.isNextDayAvailable &&
+                        {props.enableCountDownTimer && !IsPastCutOffPoint && props.isNextDayAvailable && getNextDay &&
                             <CountdownTimer 
                                 cutOffTime={props.cutOffTime} 
                                 currentDate={new Date(CurrentDate.toLocaleDateString('en-US', {timeZone: props.timezone}))}
